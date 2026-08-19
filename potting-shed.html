@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Potting Shed</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --terra: #B85C38;
+  --terra-light: #D4784E;
+  --terra-pale: #F5E6DF;
+  --clay: #8C4A2F;
+  --clay-pale: #EDD9CC;
+  --cream: #FAF6EF;
+  --cream-dark: #F0E6D3;
+  --sand: #E8D5B7;
+  --sand-dark: #D4BC96;
+  --sage: #6B8F6B;
+  --sage-light: #8AAE8A;
+  --sage-pale: #E8F0E8;
+  --amber: #C4870A;
+  --amber-pale: #FEF3DC;
+  --red-pale: #FDECEA;
+  --text: #2C1A0E;
+  --text-mid: #5C3D28;
+  --text-light: #9E7B5C;
+  --border: #DEC9AD;
+  --border-strong: #C4A882;
+  --shadow: 0 2px 12px rgba(44,26,14,0.1), 0 1px 3px rgba(44,26,14,0.08);
+  --shadow-lg: 0 8px 32px rgba(44,26,14,0.18);
+  --radius: 14px;
+  --radius-sm: 8px;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--text);
+  min-height: 100vh;
+  padding-bottom: 90px;
+}
+
+/* ── HEADER ── */
+header {
+  background: var(--clay);
+  padding: 16px 20px 14px;
+  text-align: center;
+  position: relative;
+}
+
+.header-title {
+  font-family: 'Lora', serif;
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: var(--cream);
+  letter-spacing: 0.5px;
+  font-style: italic;
+}
+
+.header-sub {
+  font-size: 0.72rem;
+  color: rgba(250,246,239,0.55);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* ── WATERING BANNER ── */
+.water-banner {
+  background: var(--sand);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  transition: background 0.3s;
+}
+
+.water-banner.overdue {
+  background: var(--amber-pale);
+  border-color: #E8C060;
+}
+
+.water-banner-left { flex: 1; min-width: 0; }
+
+.water-banner-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-light);
+  margin-bottom: 2px;
+}
+
+.water-banner-date {
+  font-family: 'Lora', serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-mid);
+}
+
+.water-banner-overdue-note {
+  font-size: 0.75rem;
+  color: var(--amber);
+  font-weight: 500;
+  margin-top: 1px;
+  display: none;
+}
+
+.water-banner.overdue .water-banner-overdue-note { display: block; }
+
+.btn-water-all {
+  background: var(--sage);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 9px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.btn-water-all:hover { background: var(--sage-light); }
+.btn-water-all:active { transform: scale(0.96); }
+
+/* ── TAB BAR ── */
+.tab-bar {
+  background: var(--cream-dark);
+  border-bottom: 1px solid var(--border);
+  padding: 0 16px;
+  display: flex;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.tab {
+  flex: 1;
+  background: none;
+  border: none;
+  border-bottom: 2.5px solid transparent;
+  padding: 11px 6px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-light);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.tab.active {
+  color: var(--terra);
+  border-bottom-color: var(--terra);
+  font-weight: 600;
+}
+
+.tab:hover:not(.active) { color: var(--text-mid); }
+
+/* ── BODY ── */
+.body-inner {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 20px 14px;
+}
+
+.section-view { display: none; }
+.section-view.active { display: block; }
+
+/* ── PLANT GRID ── */
+.plant-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+@media (min-width: 560px) { .plant-grid { grid-template-columns: repeat(3, 1fr); } }
+
+/* ── PLANT CARD ── */
+.plant-card {
+  background: var(--cream);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border-left: 3px solid transparent;
+  position: relative;
+}
+
+.plant-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.plant-card.struggling { border-left-color: #C0392B; background: #FFFAFA; }
+.plant-card.needs-attention { border-left-color: var(--amber); background: var(--amber-pale); }
+
+/* Card photo */
+.card-photo {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  display: block;
+  background: var(--sand);
+}
+
+.card-photo-placeholder {
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: linear-gradient(135deg, var(--sand) 0%, var(--clay-pale) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+
+/* Water drops overlay */
+.card-drops {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(250,246,239,0.88);
+  border-radius: 50px;
+  padding: 3px 7px;
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,0.5);
+}
+
+/* Card body */
+.card-body { padding: 10px 12px 12px; }
+
+.card-name {
+  font-family: 'Lora', serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 1px;
+  line-height: 1.25;
+}
+
+.card-botanical {
+  font-family: 'Lora', serif;
+  font-size: 0.72rem;
+  color: var(--text-light);
+  font-style: italic;
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+
+.card-water-note {
+  font-size: 0.7rem;
+  color: var(--text-light);
+  font-style: italic;
+  margin-bottom: 6px;
+  line-height: 1.35;
+}
+
+/* Health badge — tappable */
+.card-health {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 50px;
+  padding: 3px 9px 3px 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s;
+  margin-bottom: 5px;
+}
+
+.card-health.thriving { background: var(--sage-pale); color: var(--sage); }
+.card-health.needs-attention { background: var(--amber-pale); color: var(--amber); }
+.card-health.struggling { background: #FDECEA; color: #C0392B; }
+.card-health:active { transform: scale(0.94); }
+
+.card-notes-preview {
+  font-size: 0.75rem;
+  color: var(--text-light);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  text-align: center;
+  padding: 56px 20px;
+  color: var(--text-light);
+  grid-column: 1 / -1;
+}
+
+.empty-icon { font-size: 52px; display: block; margin-bottom: 14px; }
+
+.empty-title {
+  font-family: 'Lora', serif;
+  font-size: 1.15rem;
+  color: var(--text-mid);
+  margin-bottom: 6px;
+}
+
+.empty-desc { font-size: 0.85rem; line-height: 1.6; }
+
+/* ── ADD PLANT FAB ── */
+.fab {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--terra);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 13px 28px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(184,92,56,0.4);
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 100;
+  white-space: nowrap;
+}
+
+.fab:hover { background: var(--terra-light); transform: translateX(-50%) translateY(-2px); }
+.fab:active { transform: translateX(-50%) scale(0.96); }
+
+/* ── MODAL OVERLAY ── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(44,26,14,0.55);
+  z-index: 200;
+  align-items: flex-end;
+  justify-content: center;
+  backdrop-filter: blur(3px);
+}
+
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--cream);
+  border-radius: 20px 20px 0 0;
+  width: 100%;
+  max-width: 700px;
+  max-height: 92vh;
+  overflow-y: auto;
+  box-shadow: 0 -8px 40px rgba(44,26,14,0.25);
+  animation: slideUp 0.25s cubic-bezier(.22,1,.36,1);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.modal-handle {
+  width: 36px;
+  height: 4px;
+  background: var(--border-strong);
+  border-radius: 2px;
+  margin: 12px auto 0;
+}
+
+.modal-header {
+  background: linear-gradient(135deg, var(--terra-pale), var(--cream-dark));
+  padding: 16px 20px 14px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+
+.modal-title {
+  font-family: 'Lora', serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--clay);
+}
+
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  background: white;
+  border: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: var(--text-mid);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow);
+  transition: all 0.15s;
+}
+
+.modal-close:hover { background: var(--terra-pale); color: var(--terra); }
+
+.modal-body { padding: 20px; }
+
+/* ── FORM ELEMENTS ── */
+.field-group { margin-bottom: 16px; }
+
+.field-label {
+  display: block;
+  font-size: 0.73rem;
+  font-weight: 600;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 6px;
+}
+
+.field-required { color: var(--terra); }
+
+.field-input, .field-textarea, .field-select {
+  width: 100%;
+  padding: 10px 13px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  color: var(--text);
+  background: white;
+  outline: none;
+  transition: border-color 0.15s;
+  -webkit-appearance: none;
+}
+
+.field-input:focus, .field-textarea:focus { border-color: var(--terra); }
+.field-textarea { min-height: 90px; resize: vertical; line-height: 1.6; }
+
+/* ── WATER DROPS SELECTOR ── */
+.drops-selector {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.drop-opt {
+  flex: 1;
+  background: white;
+  border: 2px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 12px 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-size: 0.82rem;
+  color: var(--text-mid);
+  font-weight: 500;
+}
+
+.drop-opt .drops { font-size: 1rem; display: block; margin-bottom: 4px; letter-spacing: 2px; }
+.drop-opt:hover { border-color: var(--sage); }
+.drop-opt.selected { background: var(--sage-pale); border-color: var(--sage); color: var(--sage); }
+
+/* ── HEALTH SELECTOR ── */
+.health-selector {
+  display: flex;
+  gap: 8px;
+}
+
+.health-opt {
+  flex: 1;
+  background: white;
+  border: 2px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 10px 6px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-mid);
+}
+
+.health-opt.selected.thriving { background: var(--sage-pale); border-color: var(--sage); color: var(--sage); }
+.health-opt.selected.needs-attention { background: var(--amber-pale); border-color: var(--amber); color: var(--amber); }
+.health-opt.selected.struggling { background: #FDECEA; border-color: #C0392B; color: #C0392B; }
+
+/* ── PHOTO UPLOAD ── */
+.photo-upload-area {
+  border: 2px dashed var(--border-strong);
+  border-radius: var(--radius);
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: white;
+  position: relative;
+}
+
+.photo-upload-area:hover { border-color: var(--terra); background: var(--terra-pale); }
+
+.photo-upload-area input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+
+.photo-upload-icon { font-size: 1.8rem; display: block; margin-bottom: 6px; }
+.photo-upload-label { font-size: 0.8rem; color: var(--text-light); line-height: 1.5; }
+.photo-upload-label strong { color: var(--terra); }
+
+.photo-preview-wrap { position: relative; margin-bottom: 2px; }
+
+.photo-preview-wrap img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  display: block;
+  border: 1px solid var(--border);
+}
+
+.photo-remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(44,26,14,0.7);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── CUSTOM WATER TOGGLE ── */
+.custom-water-toggle {
+  background: none;
+  border: none;
+  color: var(--sage);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 10px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ── DETAIL MODAL ── */
+.detail-photo {
+  width: 100%;
+  max-height: 240px;
+  object-fit: cover;
+  display: block;
+}
+
+.detail-photo-placeholder {
+  width: 100%;
+  height: 160px;
+  background: linear-gradient(135deg, var(--sand), var(--clay-pale));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+}
+
+.detail-section {
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.detail-section:last-of-type { border-bottom: none; }
+
+.detail-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-light);
+  margin-bottom: 4px;
+}
+
+.detail-val {
+  font-size: 0.92rem;
+  color: var(--text-mid);
+  line-height: 1.6;
+}
+
+.detail-actions {
+  display: flex;
+  gap: 10px;
+  padding: 16px 20px 20px;
+  border-top: 1px solid var(--border);
+}
+
+/* ── BUTTONS ── */
+.btn-primary {
+  background: var(--terra);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 11px 24px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-primary:hover { background: var(--terra-light); }
+
+.btn-secondary {
+  background: white;
+  color: var(--text-mid);
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 10px 18px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-secondary:hover { border-color: var(--text-mid); }
+
+.btn-danger {
+  background: none;
+  color: #C0392B;
+  border: 1.5px solid #C0392B;
+  border-radius: var(--radius-sm);
+  padding: 10px 18px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-left: auto;
+}
+
+.btn-danger:hover { background: #FDECEA; }
+
+.btn-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 2px; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--clay);
+  color: var(--cream);
+  padding: 10px 20px;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  opacity: 0;
+  transition: all 0.3s;
+  z-index: 300;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-title">The Potting Shed</div>
+  <div class="header-sub">plant care journal</div>
+</header>
+
+<!-- WATERING BANNER -->
+<div class="water-banner" id="water-banner">
+  <div class="water-banner-left">
+    <div class="water-banner-label">Last watered</div>
+    <div class="water-banner-date" id="water-date">Not yet recorded</div>
+    <div class="water-banner-overdue-note">It's been a while — time to water? 🌿</div>
+  </div>
+  <button class="btn-water-all" onclick="waterAll()">💧 Water all today</button>
+</div>
+
+<!-- TAB BAR -->
+<div class="tab-bar">
+  <button class="tab active" onclick="switchTab('indoors')">🏠 Indoors</button>
+  <button class="tab" onclick="switchTab('west')">🌅 West Balcony</button>
+  <button class="tab" onclick="switchTab('east')">🌄 East Balcony</button>
+</div>
+
+<!-- MAIN BODY -->
+<div class="body-inner">
+  <div class="section-view active" id="view-indoors">
+    <div class="plant-grid" id="grid-indoors"></div>
+  </div>
+  <div class="section-view" id="view-west">
+    <div class="plant-grid" id="grid-west"></div>
+  </div>
+  <div class="section-view" id="view-east">
+    <div class="plant-grid" id="grid-east"></div>
+  </div>
+</div>
+
+<!-- FAB -->
+<button class="fab" onclick="openAddModal()">＋ Add plant</button>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ADD / EDIT MODAL -->
+<div class="modal-overlay" id="add-modal" onclick="closeAddModal(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="add-modal-title">Add a plant</div>
+      <button class="modal-close" onclick="closeAddModal()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Photo -->
+      <div class="field-group">
+        <label class="field-label">Photo (optional)</label>
+        <div id="form-photo-preview" style="display:none;" class="photo-preview-wrap">
+          <img id="form-photo-img" src="" alt="">
+          <button class="photo-remove" onclick="clearFormPhoto()">✕</button>
+        </div>
+        <div class="photo-upload-area" id="form-photo-area">
+          <input type="file" accept="image/*" capture="environment" onchange="handleFormPhoto(event)" id="form-photo-input">
+          <span class="photo-upload-icon">📷</span>
+          <div class="photo-upload-label"><strong>Take a photo or choose from library</strong></div>
+        </div>
+      </div>
+
+      <!-- Name -->
+      <div class="field-group">
+        <label class="field-label">Plant name <span class="field-required">*</span></label>
+        <input type="text" class="field-input" id="f-name" placeholder="e.g. Japanese Maple">
+      </div>
+
+      <!-- Botanical -->
+      <div class="field-group">
+        <label class="field-label">Botanical name (optional)</label>
+        <input type="text" class="field-input" id="f-botanical" placeholder="e.g. Acer palmatum">
+      </div>
+
+      <!-- Location -->
+      <div class="field-group">
+        <label class="field-label">Location</label>
+        <select class="field-select field-input" id="f-location">
+          <option value="indoors">🏠 Indoors</option>
+          <option value="west">🌅 West Balcony</option>
+          <option value="east">🌄 East Balcony</option>
+        </select>
+      </div>
+
+      <!-- Watering frequency -->
+      <div class="field-group">
+        <label class="field-label">Watering frequency</label>
+        <div class="drops-selector">
+          <div class="drop-opt" data-drops="1" onclick="selectDrops(1)">
+            <span class="drops">💧</span>Less frequent
+          </div>
+          <div class="drop-opt selected" data-drops="2" onclick="selectDrops(2)">
+            <span class="drops">💧💧</span>Standard
+          </div>
+          <div class="drop-opt" data-drops="3" onclick="selectDrops(3)">
+            <span class="drops">💧💧💧</span>More frequent
+          </div>
+        </div>
+        <button class="custom-water-toggle" onclick="toggleCustomWater()" id="custom-water-btn">+ Add custom note</button>
+        <div id="custom-water-wrap" style="display:none;">
+          <input type="text" class="field-input" id="f-water-note" placeholder="e.g. Only water when top inch of soil is dry">
+        </div>
+      </div>
+
+      <!-- Health -->
+      <div class="field-group">
+        <label class="field-label">Health status</label>
+        <div class="health-selector">
+          <div class="health-opt selected thriving" data-health="thriving" onclick="selectHealth('thriving')">🟢 Thriving</div>
+          <div class="health-opt needs-attention" data-health="needs-attention" onclick="selectHealth('needs-attention')">🟡 Needs attention</div>
+          <div class="health-opt struggling" data-health="struggling" onclick="selectHealth('struggling')">🔴 Struggling</div>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="field-group">
+        <label class="field-label">Notes (optional)</label>
+        <textarea class="field-textarea" id="f-notes" placeholder="Health observations, care reminders, seasonal notes... e.g. Yellowing lower leaves. Repot in spring. Protect from frost below 5°C."></textarea>
+      </div>
+
+      <p id="form-error" style="color:var(--terra);font-size:0.85rem;display:none;margin-bottom:8px;"></p>
+
+      <div class="btn-row">
+        <button class="btn-primary" onclick="savePlant()">Save plant</button>
+        <button class="btn-secondary" onclick="closeAddModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="detail-modal" onclick="closeDetailModal(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div id="detail-photo-area"></div>
+    <div class="modal-header" style="background:transparent;border-bottom:1px solid var(--border);">
+      <div class="modal-title" id="detail-name"></div>
+      <div style="font-family:'Lora',serif;font-style:italic;font-size:0.82rem;color:var(--text-light);margin-top:2px;" id="detail-botanical"></div>
+      <button class="modal-close" onclick="closeDetailModal()">✕</button>
+    </div>
+    <div class="modal-body" id="detail-body"></div>
+    <div class="detail-actions" id="detail-actions"></div>
+  </div>
+</div>
+
+<script>
+// ── STORAGE ──
+const KEY_PLANTS = 'pottingShed_plants';
+const KEY_WATER = 'pottingShed_lastWatered';
+
+let plants = JSON.parse(localStorage.getItem(KEY_PLANTS) || '[]');
+let activeTab = 'indoors';
+let editingId = null;
+let formPhotoData = null;
+let selectedDrops = 2;
+let selectedHealth = 'thriving';
+let customWaterOpen = false;
+
+function save() {
+  localStorage.setItem(KEY_PLANTS, JSON.stringify(plants));
+}
+
+// ── WATERING BANNER ──
+function renderWaterBanner() {
+  const stored = localStorage.getItem(KEY_WATER);
+  const banner = document.getElementById('water-banner');
+  const dateEl = document.getElementById('water-date');
+
+  if (!stored) {
+    dateEl.textContent = 'Not yet recorded';
+    banner.classList.remove('overdue');
+    return;
+  }
+
+  const date = new Date(stored);
+  const now = new Date();
+  const days = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+
+  dateEl.textContent = date.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+
+  if (days >= 7) {
+    banner.classList.add('overdue');
+  } else {
+    banner.classList.remove('overdue');
+  }
+}
+
+function waterAll() {
+  localStorage.setItem(KEY_WATER, new Date().toISOString());
+  renderWaterBanner();
+  showToast('💧 All plants watered!');
+}
+
+// ── TAB SWITCHING ──
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.section-view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + tab).classList.add('active');
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', ['indoors','west','east'][i] === tab);
+  });
+  // Pre-select location in form
+  const locEl = document.getElementById('f-location');
+  if (locEl) locEl.value = tab;
+}
+
+// ── RENDER PLANTS ──
+function renderAll() {
+  ['indoors','west','east'].forEach(loc => renderGrid(loc));
+}
+
+function renderGrid(loc) {
+  const grid = document.getElementById('grid-' + loc);
+  const locPlants = plants.filter(p => p.location === loc);
+
+  if (!locPlants.length) {
+    const labels = { indoors: 'your indoor plants', west: 'your west balcony', east: 'your east balcony' };
+    grid.innerHTML = `
+      <div class="empty-state">
+        <span class="empty-icon">🌱</span>
+        <div class="empty-title">No plants here yet</div>
+        <div class="empty-desc">Tap <strong>+ Add plant</strong> to add ${labels[loc]}.</div>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = locPlants.map(p => buildCard(p)).join('');
+}
+
+function buildCard(p) {
+  const drops = p.drops === 1 ? '💧' : p.drops === 3 ? '💧💧💧' : '💧💧';
+  const healthLabels = { thriving: '🟢 Thriving', 'needs-attention': '🟡 Needs attention', struggling: '🔴 Struggling' };
+  const healthClass = p.health || 'thriving';
+
+  return `<div class="plant-card ${healthClass}" onclick="openDetail('${p.id}')">
+    <div style="position:relative;">
+      ${p.photo
+        ? `<img class="card-photo" src="${p.photo}" alt="${p.name}">`
+        : `<div class="card-photo-placeholder">🌿</div>`}
+      <div class="card-drops">${drops}</div>
+    </div>
+    <div class="card-body">
+      <div class="card-name">${p.name}</div>
+      ${p.botanical ? `<div class="card-botanical">${p.botanical}</div>` : ''}
+      ${p.waterNote ? `<div class="card-water-note">ℹ ${p.waterNote}</div>` : ''}
+      <button class="card-health ${healthClass}"
+        onclick="event.stopPropagation(); cycleHealth('${p.id}')"
+        title="Tap to change status">
+        ${healthLabels[healthClass]}
+      </button>
+      ${p.notes ? `<div class="card-notes-preview">${p.notes}</div>` : ''}
+    </div>
+  </div>`;
+}
+
+// ── CYCLE HEALTH ──
+function cycleHealth(id) {
+  const plant = plants.find(p => p.id === id);
+  if (!plant) return;
+  const cycle = ['thriving', 'needs-attention', 'struggling'];
+  const idx = cycle.indexOf(plant.health || 'thriving');
+  plant.health = cycle[(idx + 1) % 3];
+  save();
+  renderAll();
+  const labels = { thriving: 'Thriving 🟢', 'needs-attention': 'Needs attention 🟡', struggling: 'Struggling 🔴' };
+  showToast(labels[plant.health]);
+}
+
+// ── ADD / EDIT MODAL ──
+function openAddModal() {
+  editingId = null;
+  formPhotoData = null;
+  selectedDrops = 2;
+  selectedHealth = 'thriving';
+  customWaterOpen = false;
+
+  document.getElementById('add-modal-title').textContent = 'Add a plant';
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-botanical').value = '';
+  document.getElementById('f-location').value = activeTab;
+  document.getElementById('f-water-note').value = '';
+  document.getElementById('f-notes').value = '';
+  document.getElementById('form-error').style.display = 'none';
+  document.getElementById('custom-water-wrap').style.display = 'none';
+  document.getElementById('custom-water-btn').textContent = '+ Add custom note';
+  clearFormPhoto();
+
+  // Reset selectors
+  document.querySelectorAll('.drop-opt').forEach(o => {
+    o.classList.toggle('selected', parseInt(o.dataset.drops) === 2);
+  });
+  document.querySelectorAll('.health-opt').forEach(o => {
+    o.classList.toggle('selected', o.dataset.health === 'thriving');
+  });
+
+  document.getElementById('add-modal').classList.add('open');
+}
+
+function openEditModal(id) {
+  const p = plants.find(pl => pl.id === id);
+  if (!p) return;
+
+  editingId = id;
+  formPhotoData = p.photo || null;
+  selectedDrops = p.drops || 2;
+  selectedHealth = p.health || 'thriving';
+
+  document.getElementById('add-modal-title').textContent = 'Edit plant';
+  document.getElementById('f-name').value = p.name || '';
+  document.getElementById('f-botanical').value = p.botanical || '';
+  document.getElementById('f-location').value = p.location || 'indoors';
+  document.getElementById('f-water-note').value = p.waterNote || '';
+  document.getElementById('f-notes').value = p.notes || '';
+  document.getElementById('form-error').style.display = 'none';
+
+  // Photo
+  if (p.photo) {
+    document.getElementById('form-photo-img').src = p.photo;
+    document.getElementById('form-photo-preview').style.display = 'block';
+    document.getElementById('form-photo-area').style.display = 'none';
+  } else {
+    clearFormPhoto();
+  }
+
+  // Custom water
+  if (p.waterNote) {
+    customWaterOpen = true;
+    document.getElementById('custom-water-wrap').style.display = 'block';
+    document.getElementById('custom-water-btn').textContent = '− Remove custom note';
+  } else {
+    customWaterOpen = false;
+    document.getElementById('custom-water-wrap').style.display = 'none';
+    document.getElementById('custom-water-btn').textContent = '+ Add custom note';
+  }
+
+  // Drops
+  document.querySelectorAll('.drop-opt').forEach(o => {
+    o.classList.toggle('selected', parseInt(o.dataset.drops) === selectedDrops);
+  });
+
+  // Health
+  document.querySelectorAll('.health-opt').forEach(o => {
+    o.classList.toggle('selected', o.dataset.health === selectedHealth);
+  });
+
+  document.getElementById('detail-modal').classList.remove('open');
+  document.getElementById('add-modal').classList.add('open');
+}
+
+function closeAddModal(e) {
+  if (!e || e.target === document.getElementById('add-modal')) {
+    document.getElementById('add-modal').classList.remove('open');
+  }
+}
+
+// ── FORM HELPERS ──
+function selectDrops(n) {
+  selectedDrops = n;
+  document.querySelectorAll('.drop-opt').forEach(o => {
+    o.classList.toggle('selected', parseInt(o.dataset.drops) === n);
+  });
+}
+
+function selectHealth(h) {
+  selectedHealth = h;
+  document.querySelectorAll('.health-opt').forEach(o => {
+    o.classList.toggle('selected', o.dataset.health === h);
+  });
+}
+
+function toggleCustomWater() {
+  customWaterOpen = !customWaterOpen;
+  document.getElementById('custom-water-wrap').style.display = customWaterOpen ? 'block' : 'none';
+  document.getElementById('custom-water-btn').textContent = customWaterOpen ? '− Remove custom note' : '+ Add custom note';
+  if (!customWaterOpen) document.getElementById('f-water-note').value = '';
+}
+
+// ── PHOTO ──
+function handleFormPhoto(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      const MAX_W = 1200;
+      const scale = img.width > MAX_W ? MAX_W / img.width : 1;
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      formPhotoData = canvas.toDataURL('image/jpeg', 0.75);
+      document.getElementById('form-photo-img').src = formPhotoData;
+      document.getElementById('form-photo-preview').style.display = 'block';
+      document.getElementById('form-photo-area').style.display = 'none';
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearFormPhoto() {
+  formPhotoData = null;
+  document.getElementById('form-photo-img').src = '';
+  document.getElementById('form-photo-preview').style.display = 'none';
+  document.getElementById('form-photo-area').style.display = 'block';
+  const input = document.getElementById('form-photo-input');
+  if (input) input.value = '';
+}
+
+// ── SAVE PLANT ──
+function savePlant() {
+  const name = document.getElementById('f-name').value.trim();
+  const errEl = document.getElementById('form-error');
+  if (!name) { errEl.textContent = 'Please enter a plant name.'; errEl.style.display = 'block'; return; }
+  errEl.style.display = 'none';
+
+  const plant = {
+    id: editingId || Date.now().toString(),
+    name,
+    botanical: document.getElementById('f-botanical').value.trim(),
+    location: document.getElementById('f-location').value,
+    drops: selectedDrops,
+    waterNote: customWaterOpen ? document.getElementById('f-water-note').value.trim() : '',
+    health: selectedHealth,
+    notes: document.getElementById('f-notes').value.trim(),
+    photo: formPhotoData,
+    added: editingId ? (plants.find(p=>p.id===editingId)||{}).added : new Date().toISOString()
+  };
+
+  if (editingId) {
+    const idx = plants.findIndex(p => p.id === editingId);
+    if (idx > -1) plants[idx] = plant;
+  } else {
+    plants.push(plant);
+  }
+
+  save();
+  closeAddModal();
+  renderAll();
+  showToast(editingId ? '✓ Plant updated' : '🌱 Plant added!');
+  editingId = null;
+  formPhotoData = null;
+}
+
+// ── DETAIL MODAL ──
+function openDetail(id) {
+  const p = plants.find(pl => pl.id === id);
+  if (!p) return;
+
+  const drops = p.drops === 1 ? '💧 Less frequent' : p.drops === 3 ? '💧💧💧 More frequent' : '💧💧 Standard';
+  const healthLabels = { thriving: '🟢 Thriving', 'needs-attention': '🟡 Needs attention', struggling: '🔴 Struggling' };
+  const locationLabels = { indoors: '🏠 Indoors', west: '🌅 West Balcony', east: '🌄 East Balcony' };
+
+  document.getElementById('detail-name').textContent = p.name;
+  document.getElementById('detail-botanical').textContent = p.botanical || '';
+
+  // Photo
+  document.getElementById('detail-photo-area').innerHTML = p.photo
+    ? `<img class="detail-photo" src="${p.photo}" alt="${p.name}">`
+    : `<div class="detail-photo-placeholder">🌿</div>`;
+
+  // Body
+  document.getElementById('detail-body').innerHTML = `
+    <div class="detail-section">
+      <div class="detail-label">Location</div>
+      <div class="detail-val">${locationLabels[p.location] || p.location}</div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-label">Watering</div>
+      <div class="detail-val">${drops}</div>
+      ${p.waterNote ? `<div class="detail-val" style="font-style:italic;color:var(--text-light);margin-top:3px;">ℹ ${p.waterNote}</div>` : ''}
+    </div>
+    <div class="detail-section">
+      <div class="detail-label">Health</div>
+      <div class="detail-val">${healthLabels[p.health || 'thriving']}</div>
+    </div>
+    ${p.notes ? `
+    <div class="detail-section">
+      <div class="detail-label">Notes</div>
+      <div class="detail-val">${p.notes.replace(/\n/g,'<br>')}</div>
+    </div>` : ''}
+    <div class="detail-section" style="border:none;padding-bottom:0;margin-bottom:0;">
+      <div class="detail-label">Added</div>
+      <div class="detail-val">${new Date(p.added).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}</div>
+    </div>`;
+
+  // Actions
+  document.getElementById('detail-actions').innerHTML = `
+    <button class="btn-primary" onclick="openEditModal('${p.id}')">Edit</button>
+    <button class="btn-secondary" onclick="closeDetailModal()">Close</button>
+    <button class="btn-danger" onclick="deletePlant('${p.id}')">Delete</button>`;
+
+  document.getElementById('detail-modal').classList.add('open');
+}
+
+function closeDetailModal(e) {
+  if (!e || e.target === document.getElementById('detail-modal')) {
+    document.getElementById('detail-modal').classList.remove('open');
+  }
+}
+
+// ── DELETE ──
+function deletePlant(id) {
+  const p = plants.find(pl => pl.id === id);
+  if (!p) return;
+  if (confirm(`Remove "${p.name}" from your collection?`)) {
+    plants = plants.filter(pl => pl.id !== id);
+    save();
+    closeDetailModal();
+    renderAll();
+    showToast('Plant removed');
+  }
+}
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ── INIT ──
+renderWaterBanner();
+renderAll();
+</script>
+</body>
+</html>
